@@ -1,4 +1,4 @@
-# 🐟 PredictAnything — MiroFish Swarm Intelligence Simulation Skill
+# 🐟 PredictAnything — Swarm Intelligence Simulation Skill
 
 **Swarm-Intelligence-Simulation nach dem MiroFish-Paradigma**
 
