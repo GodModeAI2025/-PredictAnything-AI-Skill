@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PredictAnything — Swarm Intelligence Simulation Skill</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Satoshi:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#06060b;
+  --bg-elevated:#0d0d16;
+  --bg-card:#11111c;
+  --bg-card-hover:#16162a;
+  --border:rgba(255,255,255,.06);
+  --border-bright:rgba(255,255,255,.12);
+  --text:#ddd9f0;
+  --text-muted:#706e85;
+  --text-dim:#4a4862;
+  --accent:#7c6aef;
+  --accent-light:#a99cff;
+  --cyan:#22d3c5;
+  --cyan-dim:rgba(34,211,197,.15);
+  --rose:#e8577a;
+  --amber:#efb644;
+  --font-display:'Instrument Serif',Georgia,serif;
+  --font-body:'Satoshi',system-ui,sans-serif;
+  --font-mono:'JetBrains Mono',monospace;
+}
+html{scroll-behavior:smooth;font-size:16px}
+body{background:var(--bg);color:var(--text);font-family:var(--font-body);line-height:1.7;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+::selection{background:var(--accent);color:#fff}
+a{color:inherit;text-decoration:none}
+
+/* ─── GRAIN OVERLAY ─── */
+body::before{content:'';position:fixed;inset:0;z-index:9999;pointer-events:none;opacity:.035;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+/* ─── LAYOUT ─── */
+.container{max-width:1200px;margin:0 auto;padding:0 clamp(1.5rem,4vw,3rem)}
+section{padding:clamp(4rem,10vw,9rem) 0}
+
+/* ─── NAV ─── */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:1.25rem 0;transition:all .4s ease;backdrop-filter:blur(20px);background:rgba(6,6,11,.7);border-bottom:1px solid transparent}
+nav.scrolled{border-bottom-color:var(--border)}
+nav .container{display:flex;align-items:center;justify-content:space-between}
+.nav-logo{display:flex;align-items:center;gap:.6rem;font-family:var(--font-body);font-weight:700;font-size:1.05rem;letter-spacing:-.02em}
+.nav-logo .fish{font-size:1.3rem}
+.nav-links{display:flex;align-items:center;gap:2rem}
+.nav-links a{font-size:.85rem;font-weight:500;color:var(--text-muted);transition:color .3s}
+.nav-links a:hover{color:var(--text)}
+.btn-nav{padding:.55rem 1.4rem;border-radius:8px;font-size:.85rem;font-weight:600;background:#fff;color:var(--bg);transition:all .3s;border:none;cursor:pointer;display:inline-block}
+.btn-nav:hover{transform:translateY(-1px);box-shadow:0 8px 30px rgba(255,255,255,.15)}
+
+/* ─── HERO ─── */
+.hero{min-height:100vh;display:flex;align-items:center;position:relative;padding-top:8rem;padding-bottom:4rem}
+.hero::before{content:'';position:absolute;top:-200px;left:50%;transform:translateX(-50%);width:900px;height:900px;background:radial-gradient(circle,rgba(124,106,239,.12) 0%,rgba(34,211,197,.06) 40%,transparent 70%);pointer-events:none}
+.hero-inner{position:relative;z-index:1;max-width:860px}
+.hero-badge{display:inline-flex;align-items:center;gap:.5rem;padding:.4rem 1rem .4rem .6rem;border-radius:100px;background:rgba(124,106,239,.1);border:1px solid rgba(124,106,239,.2);font-size:.78rem;font-weight:500;color:var(--accent-light);margin-bottom:2rem;letter-spacing:.02em}
+.hero-badge .dot{width:6px;height:6px;border-radius:50%;background:var(--cyan);animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.hero h1{font-family:var(--font-display);font-size:clamp(3rem,7vw,5.5rem);line-height:1.05;font-weight:400;letter-spacing:-.03em;margin-bottom:1.5rem}
+.hero h1 em{font-style:italic;color:var(--accent-light)}
+.hero h1 .gradient-text{background:linear-gradient(135deg,var(--cyan),var(--accent-light),var(--rose));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.hero-sub{font-size:clamp(1.05rem,2vw,1.25rem);color:var(--text-muted);max-width:600px;line-height:1.8;margin-bottom:3rem;font-weight:300}
+.hero-actions{display:flex;gap:1rem;flex-wrap:wrap}
+.btn-primary{display:inline-flex;align-items:center;gap:.6rem;padding:.9rem 2rem;border-radius:10px;font-size:.95rem;font-weight:600;font-family:var(--font-body);background:#fff;color:var(--bg);border:none;cursor:pointer;transition:all .35s ease}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(255,255,255,.18)}
+.btn-primary svg{width:18px;height:18px}
+.btn-secondary{display:inline-flex;align-items:center;gap:.6rem;padding:.9rem 2rem;border-radius:10px;font-size:.95rem;font-weight:500;font-family:var(--font-body);background:transparent;color:var(--text);border:1px solid var(--border-bright);cursor:pointer;transition:all .35s ease}
+.btn-secondary:hover{border-color:var(--accent);background:rgba(124,106,239,.06)}
+
+/* ─── HERO VISUAL ─── */
+.hero-visual{margin-top:5rem;position:relative}
+.sim-window{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:0 40px 100px rgba(0,0,0,.5)}
+.sim-topbar{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.5rem;border-bottom:1px solid var(--border);background:var(--bg-elevated)}
+.sim-dots{display:flex;gap:6px}
+.sim-dots span{width:10px;height:10px;border-radius:50%;background:var(--border-bright)}
+.sim-dots span:first-child{background:#ef5350}
+.sim-dots span:nth-child(2){background:#ffca28}
+.sim-dots span:last-child{background:#66bb6a}
+.sim-title{font-size:.75rem;color:var(--text-dim);font-family:var(--font-mono);letter-spacing:.05em}
+.sim-content{padding:2rem 2rem 2.5rem;font-family:var(--font-mono);font-size:.8rem;line-height:2;color:var(--text-muted)}
+.sim-content .phase{color:var(--cyan);font-weight:500}
+.sim-content .agent{color:var(--accent-light)}
+.sim-content .metric{color:var(--amber)}
+.sim-content .alert{color:var(--rose)}
+.sim-line{opacity:0;animation:fadeIn .5s forwards}
+@keyframes fadeIn{to{opacity:1}}
+.sim-line:nth-child(1){animation-delay:.2s}
+.sim-line:nth-child(2){animation-delay:.6s}
+.sim-line:nth-child(3){animation-delay:1s}
+.sim-line:nth-child(4){animation-delay:1.4s}
+.sim-line:nth-child(5){animation-delay:1.8s}
+.sim-line:nth-child(6){animation-delay:2.2s}
+.sim-line:nth-child(7){animation-delay:2.6s}
+.sim-line:nth-child(8){animation-delay:3s}
+.sim-line:nth-child(9){animation-delay:3.4s}
+.sim-cursor{display:inline-block;width:8px;height:15px;background:var(--accent);animation:blink 1s step-end infinite;vertical-align:text-bottom;margin-left:2px}
+@keyframes blink{50%{opacity:0}}
+
+/* ─── PRINCIPLE BANNER ─── */
+.principle{text-align:center;position:relative}
+.principle-quote{font-family:var(--font-display);font-size:clamp(1.5rem,3.5vw,2.4rem);font-style:italic;line-height:1.5;max-width:800px;margin:0 auto;color:var(--text)}
+.principle-quote .hl{color:var(--cyan)}
+.principle-line{width:60px;height:2px;background:linear-gradient(90deg,var(--accent),var(--cyan));margin:2rem auto 0;border-radius:1px}
+
+/* ─── WORKFLOW ─── */
+.section-label{font-size:.72rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--accent-light);margin-bottom:1rem}
+.section-title{font-family:var(--font-display);font-size:clamp(2rem,4vw,3.2rem);line-height:1.15;margin-bottom:1rem;letter-spacing:-.02em}
+.section-sub{font-size:1.05rem;color:var(--text-muted);max-width:550px;line-height:1.8;font-weight:300}
+.workflow-grid{display:grid;gap:1px;margin-top:4rem;background:var(--border);border-radius:16px;overflow:hidden}
+.wf-phase{background:var(--bg-card);padding:clamp(2rem,4vw,3rem);display:grid;grid-template-columns:auto 1fr;gap:1.5rem 2rem;align-items:start;transition:background .3s}
+.wf-phase:hover{background:var(--bg-card-hover)}
+.wf-num{font-family:var(--font-display);font-size:2.8rem;line-height:1;color:var(--accent);opacity:.3;font-style:italic}
+.wf-phase:hover .wf-num{opacity:.7;transition:opacity .3s}
+.wf-body h3{font-size:1.1rem;font-weight:700;margin-bottom:.5rem;letter-spacing:-.01em}
+.wf-body p{font-size:.92rem;color:var(--text-muted);line-height:1.7;max-width:500px}
+.wf-tag{display:inline-block;padding:.15rem .6rem;border-radius:4px;font-size:.7rem;font-weight:600;font-family:var(--font-mono);letter-spacing:.04em;margin-left:.5rem;vertical-align:middle}
+.tag-build{background:rgba(34,211,197,.1);color:var(--cyan)}
+.tag-sim{background:rgba(124,106,239,.1);color:var(--accent-light)}
+.tag-report{background:rgba(239,182,68,.1);color:var(--amber)}
+.tag-interact{background:rgba(232,87,122,.1);color:var(--rose)}
+
+/* ─── USE CASES ─── */
+.usecases-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1.5rem;margin-top:3.5rem}
+.uc-card{background:var(--bg-card);border:1px solid var(--border);border-radius:14px;padding:2rem;transition:all .4s ease;position:relative;overflow:hidden}
+.uc-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:0;transition:opacity .4s}
+.uc-card:hover{border-color:var(--border-bright);transform:translateY(-4px);box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.uc-card:hover::before{opacity:1}
+.uc-icon{font-size:1.8rem;margin-bottom:1.2rem;display:block}
+.uc-card h3{font-size:1rem;font-weight:700;margin-bottom:.6rem}
+.uc-card p{font-size:.85rem;color:var(--text-muted);line-height:1.65}
+
+/* ─── EXAMPLE ─── */
+.example-section{background:var(--bg-elevated);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.example-header{display:flex;align-items:flex-end;justify-content:space-between;gap:2rem;flex-wrap:wrap;margin-bottom:3rem}
+.example-content{background:var(--bg-card);border:1px solid var(--border);border-radius:16px;overflow:hidden}
+.example-tab-bar{display:flex;border-bottom:1px solid var(--border);padding:0 .5rem;overflow-x:auto}
+.example-tab{padding:1rem 1.5rem;font-size:.8rem;font-weight:500;color:var(--text-dim);border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;transition:all .3s}
+.example-tab.active{color:var(--accent-light);border-bottom-color:var(--accent)}
+.example-body{padding:clamp(1.5rem,3vw,2.5rem);max-height:500px;overflow-y:auto}
+.example-body::-webkit-scrollbar{width:4px}
+.example-body::-webkit-scrollbar-thumb{background:var(--border-bright);border-radius:2px}
+.example-body h2{font-family:var(--font-display);font-size:1.6rem;margin-bottom:1rem;font-style:italic}
+.example-body p{font-size:.88rem;color:var(--text-muted);line-height:1.8;margin-bottom:1.2rem}
+.example-body table{width:100%;border-collapse:collapse;margin:1.5rem 0;font-size:.82rem}
+.example-body th{text-align:left;padding:.75rem 1rem;color:var(--accent-light);font-weight:600;border-bottom:1px solid var(--border);font-size:.72rem;letter-spacing:.08em;text-transform:uppercase}
+.example-body td{padding:.65rem 1rem;border-bottom:1px solid var(--border);color:var(--text-muted)}
+.example-body tr:hover td{color:var(--text);background:rgba(255,255,255,.02)}
+
+/* ─── QUALITY ─── */
+.quality-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:2rem;margin-top:3.5rem}
+.q-item{display:flex;gap:1rem;align-items:flex-start}
+.q-marker{flex-shrink:0;width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);font-size:.75rem;font-weight:600;background:rgba(124,106,239,.08);color:var(--accent-light);border:1px solid rgba(124,106,239,.15)}
+.q-item h4{font-size:.95rem;font-weight:600;margin-bottom:.3rem}
+.q-item p{font-size:.84rem;color:var(--text-muted);line-height:1.6}
+
+/* ─── INSTALL ─── */
+.install-section{text-align:center}
+.install-box{max-width:700px;margin:3rem auto 0;background:var(--bg-card);border:1px solid var(--border);border-radius:16px;overflow:hidden}
+.install-step{display:flex;align-items:flex-start;gap:1.5rem;padding:1.5rem 2rem;border-bottom:1px solid var(--border);text-align:left}
+.install-step:last-child{border-bottom:none}
+.step-num{flex-shrink:0;width:28px;height:28px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:#fff;margin-top:.15rem}
+.step-text{font-size:.9rem;line-height:1.7}
+.step-text strong{color:var(--text);display:block;margin-bottom:.2rem}
+.step-text span{color:var(--text-muted)}
+.code-inline{font-family:var(--font-mono);font-size:.8rem;background:rgba(124,106,239,.08);padding:.2rem .5rem;border-radius:4px;color:var(--accent-light);border:1px solid rgba(124,106,239,.12)}
+
+/* ─── CTA ─── */
+.cta{text-align:center;position:relative}
+.cta::before{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:700px;height:500px;background:radial-gradient(circle,rgba(124,106,239,.08) 0%,rgba(34,211,197,.04) 50%,transparent 70%);pointer-events:none}
+.cta-inner{position:relative;z-index:1}
+.cta h2{font-family:var(--font-display);font-size:clamp(2.2rem,5vw,3.8rem);line-height:1.1;margin-bottom:1.2rem;letter-spacing:-.02em;font-style:italic}
+.cta p{font-size:1.1rem;color:var(--text-muted);max-width:500px;margin:0 auto 2.5rem;line-height:1.7;font-weight:300}
+
+/* ─── FOOTER ─── */
+footer{padding:3rem 0;border-top:1px solid var(--border)}
+footer .container{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem}
+.footer-left{font-size:.82rem;color:var(--text-dim);font-weight:400}
+.footer-links{display:flex;gap:1.5rem}
+.footer-links a{font-size:.82rem;color:var(--text-dim);transition:color .3s}
+.footer-links a:hover{color:var(--text)}
+
+/* ─── RESPONSIVENESS ─── */
+@media(max-width:768px){
+  .nav-links{display:none}
+  .wf-phase{grid-template-columns:1fr}
+  .wf-num{font-size:2rem}
+  .example-header{flex-direction:column;align-items:flex-start}
+  footer .container{flex-direction:column;text-align:center}
+}
+
+/* ─── FADE-IN ANIMATIONS ─── */
+.fade-in{opacity:0;transform:translateY(30px);transition:opacity .8s ease,transform .8s ease}
+.fade-in.visible{opacity:1;transform:translateY(0)}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="nav">
+  <div class="container">
+    <a href="#" class="nav-logo"><span class="fish">&#x1F41F;</span> PredictAnything</a>
+    <div class="nav-links">
+      <a href="#workflow">Workflow</a>
+      <a href="#usecases">Use Cases</a>
+      <a href="#example">Beispiel</a>
+      <a href="#install">Installation</a>
+      <a href="https://github.com/GodModeAI2025/-PredictAnything-AI-Skill" target="_blank" class="btn-nav">GitHub &rarr;</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-inner">
+      <div class="hero-badge"><span class="dot"></span> Open Source &middot; MIT License &middot; Claude Cowork Skill</div>
+      <h1><em>Predict</em>Anything<br><span class="gradient-text">Swarm Intelligence</span><br>Simulation</h1>
+      <p class="hero-sub">Aus Seed-Informationen ein digitales Paralleluniversum konstruieren. Tausende autonome Agenten mit Persönlichkeit, Gedächtnis und Verhaltenslogik &mdash; Schwarmintelligenz statt statistischer Regression.</p>
+      <div class="hero-actions">
+        <a href="https://github.com/GodModeAI2025/-PredictAnything-AI-Skill" target="_blank" class="btn-primary">
+          <svg viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+          Auf GitHub ansehen
+        </a>
+        <a href="#workflow" class="btn-secondary">Wie funktioniert es? &darr;</a>
+      </div>
+    </div>
+
+    <!-- SIM WINDOW -->
+    <div class="hero-visual fade-in">
+      <div class="sim-window">
+        <div class="sim-topbar">
+          <div class="sim-dots"><span></span><span></span><span></span></div>
+          <span class="sim-title">MIROFISH SIMULATION ENGINE</span>
+          <span style="width:52px"></span>
+        </div>
+        <div class="sim-content">
+          <div class="sim-line"><span class="phase">&#9654; Phase 1</span> &nbsp;Graphkonstruktion &mdash; Seed-Material wird analysiert...</div>
+          <div class="sim-line">&nbsp;&nbsp;&#x251C; 14 Entit&auml;ten extrahiert &middot; 23 Beziehungen identifiziert</div>
+          <div class="sim-line">&nbsp;&nbsp;&#x2514; Kontext-Layer: <span class="metric">Regulatorisch</span> &middot; <span class="metric">&Ouml;konomisch</span> &middot; <span class="metric">Technologisch</span></div>
+          <div class="sim-line"><span class="phase">&#9654; Phase 2</span> &nbsp;Umgebungsaufbau &mdash; 8 Agenten initialisiert</div>
+          <div class="sim-line">&nbsp;&nbsp;&#x251C; <span class="agent">Agent #3 &laquo;DG-COMP Juristin&raquo;</span> Einfluss: 9/10</div>
+          <div class="sim-line">&nbsp;&nbsp;&#x2514; <span class="agent">Agent #7 &laquo;Indie-Entwicklerin&raquo;</span> Einfluss: 3/10</div>
+          <div class="sim-line"><span class="phase">&#9654; Phase 3</span> &nbsp;Simulation l&auml;uft &mdash; Runde 4/10</div>
+          <div class="sim-line">&nbsp;&nbsp;&#x251C; <span class="alert">&#x26A0; Emergenter Tipping Point erkannt</span> &mdash; Kaskadeneffekt</div>
+          <div class="sim-line">&nbsp;&nbsp;&#x2514; Adoption verschiebt sich: <span class="metric">18% &rarr; 34%</span> (+16pp)<span class="sim-cursor"></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRINCIPLE -->
+<section class="principle fade-in">
+  <div class="container">
+    <p class="principle-quote">&bdquo;Nicht Daten extrapolieren, sondern <span class="hl">emergentes Verhalten</span> aus Agenteninteraktionen ableiten &mdash; Schwarmintelligenz statt statistischer Regression.&ldquo;</p>
+    <div class="principle-line"></div>
+  </div>
+</section>
+
+<!-- WORKFLOW -->
+<section id="workflow" class="fade-in">
+  <div class="container">
+    <span class="section-label">5-Phasen-Workflow</span>
+    <h2 class="section-title">Vom Seed-Material<br>zur Zukunftsprognose</h2>
+    <p class="section-sub">Nachrichten, Policy-Entwürfe, Finanzsignale oder Romanfragmente werden in ein lebendiges Simulationsuniversum überführt.</p>
+
+    <div class="workflow-grid">
+      <div class="wf-phase">
+        <span class="wf-num">01</span>
+        <div class="wf-body">
+          <h3>Graphkonstruktion <span class="wf-tag tag-build">BUILD</span></h3>
+          <p>Seed-Material wird in einen Knowledge Graph überführt: Entitäten, Beziehungen, Kontext-Layer und zeitliche Dimensionen. GraphRAG-Struktur als Fundament.</p>
+        </div>
+      </div>
+      <div class="wf-phase">
+        <span class="wf-num">02</span>
+        <div class="wf-body">
+          <h3>Umgebungsaufbau <span class="wf-tag tag-build">BUILD</span></h3>
+          <p>Agenten-Personas mit Persönlichkeitsprofil, Wissensstand, Gedächtnis, Verhaltensregeln und sozialer Position. Jeder Agent ist ein autonomer Akteur.</p>
+        </div>
+      </div>
+      <div class="wf-phase">
+        <span class="wf-num">03</span>
+        <div class="wf-body">
+          <h3>Simulation <span class="wf-tag tag-sim">SIMULATE</span></h3>
+          <p>Multi-Runden-Interaktion mit Variablen-Injektion. Emergente Muster werden erkannt: Tipping Points, Kaskadeneffekte, unerwartete Koalitionen.</p>
+        </div>
+      </div>
+      <div class="wf-phase">
+        <span class="wf-num">04</span>
+        <div class="wf-body">
+          <h3>Berichterstellung <span class="wf-tag tag-report">REPORT</span></h3>
+          <p>Drei Szenarien (Basis / Optimistisch / Pessimistisch) mit konkreten Tipping Points, Handlungsempfehlungen und transparenten Modellgrenzen.</p>
+        </div>
+      </div>
+      <div class="wf-phase">
+        <span class="wf-num">05</span>
+        <div class="wf-body">
+          <h3>Deep Interaction <span class="wf-tag tag-interact">INTERACT</span></h3>
+          <p>Dialog mit einzelnen Agenten. Variablen nachinjizieren. Zeitachse verschieben. Annahmen hinterfragen. Die Simulation lebt weiter.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- USE CASES -->
+<section id="usecases" class="fade-in">
+  <div class="container">
+    <span class="section-label">Anwendungsszenarien</span>
+    <h2 class="section-title">Für jede Domäne,<br>die Zukunft denkt</h2>
+
+    <div class="usecases-grid">
+      <div class="uc-card">
+        <span class="uc-icon">&#x1F3E2;</span>
+        <h3>Enterprise &amp; KRITIS</h3>
+        <p>Policy-Impact-Assessment, Krisenreaktion simulieren, Stakeholder-Verhalten vorhersagen, M&amp;A-Szenarien durchspielen.</p>
+      </div>
+      <div class="uc-card">
+        <span class="uc-icon">&#x1F4F0;</span>
+        <h3>Public Opinion</h3>
+        <p>Medienreaktionen auf Pressemitteilungen, Social-Media-Stürme vorhersagen, Wahlkampf-Szenarien modellieren.</p>
+      </div>
+      <div class="uc-card">
+        <span class="uc-icon">&#x1F4DA;</span>
+        <h3>Kreativ &amp; Narrativ</h3>
+        <p>Romanenden vorhersagen, Charakter-Interaktionen simulieren, historische Was-wäre-wenn-Szenarien erforschen.</p>
+      </div>
+      <div class="uc-card">
+        <span class="uc-icon">&#x1F4C8;</span>
+        <h3>Finanz &amp; Markt</h3>
+        <p>Regulatorische Änderungen simulieren, Investor-Sentiment modellieren, Wettbewerbsdynamik voraussehen.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EXAMPLE -->
+<section id="example" class="example-section fade-in">
+  <div class="container">
+    <div class="example-header">
+      <div>
+        <span class="section-label">Live-Beispiel</span>
+        <h2 class="section-title">Das agentische Betriebssystem:<br>Was bis 2030 passiert</h2>
+      </div>
+      <p class="section-sub" style="margin-bottom:0">Eine Prognose mit 8 Agenten, 10 Simulationsrunden und 4-Jahres-Projektion zum Thema Googles &laquo;Intelligent OS&raquo;.</p>
+    </div>
+
+    <div class="example-content">
+      <div class="example-tab-bar">
+        <span class="example-tab active" data-tab="overview">Zusammenfassung</span>
+        <span class="example-tab" data-tab="agents">Agenten</span>
+        <span class="example-tab" data-tab="timeline">Adoption</span>
+        <span class="example-tab" data-tab="insights">Erkenntnisse</span>
+      </div>
+
+      <div class="example-body" id="tab-overview" style="display:block">
+        <h2>Ausgangslage</h2>
+        <p>Google hat im Februar 2026 mit dem &laquo;Intelligent OS&raquo; das App-Modell der letzten 15 Jahre in Frage gestellt &mdash; als konkrete Plattformarchitektur für Android. Zwei Mechanismen gleichzeitig: AppFunctions (Entwickler deklarieren Agenten-Zugriff) und UI-Automation (der Agent bedient Apps eigenständig).</p>
+        <p>Die Simulation hat acht Agenten mit eigenen Motivationen, Wissenslücken und Netzwerken durch fünf Variablen-Injektionen und zehn Runden über vier Jahre geschickt. Das Ergebnis ist weder Googles Maximalvision noch der Skeptiker-Worst-Case.</p>
+        <h2>Kern-Prognose</h2>
+        <p>2030 interagieren 51% der Nutzer regelmäßig mit Agenten. Aber die Disruption folgt keiner S-Kurve, sondern einer Treppenfunktion &mdash; Sprünge bei Schlüsselereignissen, Plateaus dazwischen. Der Endzustand ist ein stabiles Hybrid-Modell mit klarer Domänentrennung.</p>
+      </div>
+
+      <div class="example-body" id="tab-agents" style="display:none">
+        <h2>Die 8 Agenten</h2>
+        <p><strong style="color:var(--accent-light)">VP Product (Lieferdienst)</strong> &mdash; Setzt sofort ein 8-köpfiges Team auf AppFunctions an. Motivation: Wenn sein Dienst nicht die beste Agent-Anbindung hat, empfiehlt Gemini den Wettbewerber.</p>
+        <p><strong style="color:var(--accent-light)">Indie-Entwicklerin</strong> &mdash; 3-Personen-Startup. 3&ndash;4 Personenwochen AppFunctions-Aufwand sind existenzbedrohend. Überlebt paradoxerweise durch Nischen-Datenqualität.</p>
+        <p><strong style="color:var(--accent-light)">Google DevRel Lead</strong> &mdash; Verkauft die Architektur mit Charm-Offensive. Narrativ: &laquo;Mehr Reichweite, nicht weniger.&raquo;</p>
+        <p><strong style="color:var(--accent-light)">DG-COMP Juristin (Brüssel)</strong> &mdash; Sucht Präzedenzfälle für Self-Preferencing nach DMA. Eröffnet 2027 formale Voruntersuchung.</p>
+        <p><strong style="color:var(--accent-light)">Privacy-Aktivistin (Noyb)</strong> &mdash; Will den Test-Case: Agent bestellt autonom, wählt falsch, Allergie. Art. 22 DSGVO.</p>
+        <p><strong style="color:var(--accent-light)">+ Samsung, IPCC-Proxy, ESA-Ingenieur</strong> und 50.000 simulierte Endanwender in vier Segmenten.</p>
+      </div>
+
+      <div class="example-body" id="tab-timeline" style="display:none">
+        <h2>Adoptionsverlauf</h2>
+        <table>
+          <thead><tr><th>Jahr</th><th>Nutzung</th><th>Schlüsselereignis</th></tr></thead>
+          <tbody>
+            <tr><td>2026 H1</td><td style="color:var(--cyan)">8%</td><td>Architektur-Schock, Ökosystem-Spaltung</td></tr>
+            <tr><td>2026 H2</td><td style="color:var(--cyan)">18%</td><td>Allergie-Vorfall, Vertrauenskrise</td></tr>
+            <tr><td>2027</td><td style="color:var(--cyan)">28%</td><td>Agent Choice Screen, Samsung Agent Hub</td></tr>
+            <tr><td>2028</td><td style="color:var(--cyan)">34%</td><td>UAP-Standard (Google + Anthropic), erste UI-less App</td></tr>
+            <tr><td>2029</td><td style="color:var(--cyan)">42%</td><td>Enterprise-Welle, Agent-Profiling-Debatte</td></tr>
+            <tr><td>2030</td><td style="color:var(--amber);font-weight:700">51%</td><td>Hybrid-Modell als Endzustand</td></tr>
+          </tbody>
+        </table>
+        <p>Die Adoption folgt keiner S-Kurve. Sie folgt einer Treppenfunktion: Sprünge bei Schlüsselereignissen, Plateaus dazwischen.</p>
+      </div>
+
+      <div class="example-body" id="tab-insights" style="display:none">
+        <h2>Drei zentrale Erkenntnisse</h2>
+        <p><strong style="color:var(--rose)">1. Der Indie-Entwickler wird Schlüsselakteur.</strong> Nicht durch Macht, sondern durch Narrativ. &laquo;Kleine Entwicklerin gegen Big Tech&raquo; bewegt Regulierer stärker als jede technische Analyse.</p>
+        <p><strong style="color:var(--rose)">2. Ein einzelner Vorfall bremst alles.</strong> Der Allergie-Fall bremst die Adoption um Monate und zieht regulatorische Aufmerksamkeit, die Google über Jahre beschäftigt. Die Asymmetrie zwischen Aufbau und Zerstörung von Vertrauen ist der zentrale Risikofaktor.</p>
+        <p><strong style="color:var(--rose)">3. Die Disruption ist nicht technisch, sie ist ökonomisch.</strong> Die Technologie steht bereit. Governance nicht. Wer den Agenten kontrolliert, kontrolliert den Zugang zum Kunden &mdash; und diese Frage ist 2030 nicht beantwortet.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- QUALITY -->
+<section class="fade-in">
+  <div class="container">
+    <span class="section-label">Qualitätsprinzipien</span>
+    <h2 class="section-title">Keine Pseudo-Präzision.<br>Keine leeren Prognosen.</h2>
+
+    <div class="quality-grid">
+      <div class="q-item">
+        <div class="q-marker">E</div>
+        <div><h4>Emergenz vor Extrapolation</h4><p>Ergebnisse entstehen aus Agenteninteraktionen, nicht aus linearer Fortschreibung vergangener Daten.</p></div>
+      </div>
+      <div class="q-item">
+        <div class="q-marker">T</div>
+        <div><h4>Transparente Unsicherheit</h4><p>Jede Prognose benennt Konfidenz, Annahmen und blinde Flecken. Bandbreiten statt Punktschätzungen.</p></div>
+      </div>
+      <div class="q-item">
+        <div class="q-marker">F</div>
+        <div><h4>Falsifizierbare Szenarien</h4><p>Konkrete Indikatoren, an denen die Eintrittswahrscheinlichkeit jedes Szenarios messbar wird.</p></div>
+      </div>
+      <div class="q-item">
+        <div class="q-marker">A</div>
+        <div><h4>Adversariales Denken</h4><p>Mindestens ein Agent vertritt systematisch die Gegenposition &mdash; kein Groupthink.</p></div>
+      </div>
+      <div class="q-item">
+        <div class="q-marker">G</div>
+        <div><h4>Gedächtniskonsistenz</h4><p>Agenten widersprechen sich nicht selbst über Runden hinweg. Langzeitgedächtnis statt Amnesie.</p></div>
+      </div>
+      <div class="q-item">
+        <div class="q-marker">P</div>
+        <div><h4>Keine Pseudo-Präzision</h4><p>Keine falschen Prozentzahlen ohne Begründung. Ehrliche Unsicherheit ist informativer als exakte Fiktion.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- INSTALL -->
+<section id="install" class="install-section fade-in">
+  <div class="container">
+    <span class="section-label">Loslegen</span>
+    <h2 class="section-title">Installation in 2 Minuten</h2>
+    <p class="section-sub" style="margin:1rem auto 0;text-align:center;max-width:500px">Als Claude Cowork Skill in jede Session integrierbar. Kein Setup, keine Dependencies.</p>
+
+    <div class="install-box">
+      <div class="install-step">
+        <div class="step-num">1</div>
+        <div class="step-text">
+          <strong>Repository klonen</strong>
+          <span>Clone das Repo oder lade die Datei <span class="code-inline">mirofish-skill/SKILL.md</span> herunter.</span>
+        </div>
+      </div>
+      <div class="install-step">
+        <div class="step-num">2</div>
+        <div class="step-text">
+          <strong>In Claude Cowork einbinden</strong>
+          <span>Kopiere <span class="code-inline">SKILL.md</span> in das Skills-Verzeichnis deiner Claude Cowork Session.</span>
+        </div>
+      </div>
+      <div class="install-step">
+        <div class="step-num">3</div>
+        <div class="step-text">
+          <strong>Simulation starten</strong>
+          <span>Sage Claude: <span class="code-inline">&ldquo;Simuliere die Reaktion auf...&rdquo;</span> oder <span class="code-inline">&ldquo;Was passiert wenn...&rdquo;</span></span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta fade-in">
+  <div class="container">
+    <div class="cta-inner">
+      <h2>Die Zukunft<br>durchspielen.</h2>
+      <p>Emergenz statt Extrapolation. Szenarien statt Gewissheiten. Schwarmintelligenz statt Bauchgefühl.</p>
+      <div class="hero-actions" style="justify-content:center">
+        <a href="https://github.com/GodModeAI2025/-PredictAnything-AI-Skill" target="_blank" class="btn-primary">
+          <svg viewBox="0 0 16 16" fill="currentColor" width="18" height="18"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+          Repository auf GitHub
+        </a>
+        <a href="#workflow" class="btn-secondary">Dokumentation lesen</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <span class="footer-left">&#x1F41F; PredictAnything &mdash; MIT License &mdash; Inspiriert durch das MiroFish-Projekt</span>
+    <div class="footer-links">
+      <a href="https://github.com/GodModeAI2025/-PredictAnything-AI-Skill" target="_blank">GitHub</a>
+      <a href="https://github.com/666ghj/MiroFish" target="_blank">MiroFish</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+// Nav scroll effect
+const nav = document.getElementById('nav');
+window.addEventListener('scroll', () => {
+  nav.classList.toggle('scrolled', window.scrollY > 40);
+});
+
+// Fade-in on scroll
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.12 });
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+// Tab switching
+document.querySelectorAll('.example-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.example-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    document.querySelectorAll('.example-body').forEach(b => b.style.display = 'none');
+    document.getElementById('tab-' + tab.dataset.tab).style.display = 'block';
+  });
+});
+</script>
+</body>
+</html>
