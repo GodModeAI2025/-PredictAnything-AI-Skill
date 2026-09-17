@@ -13,7 +13,7 @@ Aus Seed-Informationen (Nachrichten, Policy-Entwürfe, Finanzsignale, Romanfragm
 1. **Graphkonstruktion** — Seed-Material wird in einen Knowledge Graph überführt (Entitäten, Beziehungen, Kontext-Layer)
 2. **Umgebungsaufbau** — Agenten-Personas mit Persönlichkeit, Gedächtnis, Verhaltensregeln und sozialer Position
 3. **Simulation** — Multi-Runden-Interaktion mit Variablen-Injektion und Emergenz-Erkennung
-4. **Berichterstellung** — Drei Szenarien (Basis/Optimistisch/Pessimistisch) mit Tipping Points und Handlungsempfehlungen
+4. **Berichterstellung** — Drei Szenarien (Basis/Optimistisch/Pessimistisch) mit hergeleiteten Wahrscheinlichkeits-Bandbreiten, Tipping Points, Frühindikatoren und Handlungsempfehlungen
 5. **Deep Interaction** — Dialog mit einzelnen Agenten, Variablen nachinjizieren, Zeitachse verschieben
 
 ## Anwendungsszenarien
@@ -35,6 +35,8 @@ Die Datei `mirofish-skill/SKILL.md` in das Skills-Verzeichnis einer Claude Cowor
 - Adversariales Denken
 - Gedächtniskonsistenz
 - Keine Pseudo-Präzision
+- Außensicht vor Innensicht (Basisrate vergleichbarer Fälle zuerst)
+- Simulierte Stimmen sind keine Quellen
 
 ## Attribution
 

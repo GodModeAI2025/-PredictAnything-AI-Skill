@@ -33,6 +33,8 @@ Dieser Skill implementiert das **MiroFish-Paradigma**: Aus Seed-Informationen (N
 3. Zeitliche Dimension: Chronologie der Ereignisse, kausale Ketten
 4. Kontextuelles Wissen: Hintergrund, Normen, kulturelle Faktoren
 5. GraphRAG-Struktur aufbauen: Entitäten als Knoten, Beziehungen als Kanten, Attribute als Properties
+6. **Außensicht festhalten (Referenzklasse)**: Welche vergleichbaren Fälle gibt es, und wie gingen sie typischerweise aus? Daraus eine Basisrate als Bandbreite ableiten. Begründen, warum die Fälle vergleichbar sind und was den aktuellen Fall unterscheidet. Gibt es keine belastbare Referenzklasse, die Ausgangsschätzung ausdrücklich als Einschätzung kennzeichnen, nicht als Datum.
+7. **Unterscheidende Belege**: Welche beobachtbaren Fakten würden einen der denkbaren Verläufe wahrscheinlicher machen als die anderen? Mehrere Artikel, die dieselbe Pressemitteilung wiedergeben, zählen als eine Quelle.
 
 **Output-Format** (Markdown-Tabelle oder strukturiertes JSON):
 ```
@@ -41,6 +43,7 @@ WISSENSGRAPH:
 - Beziehungen: [Quelle → Ziel, Typ, Stärke, Richtung]
 - Kontext-Layer: [Regulatorisch, Kulturell, Technologisch, Ökonomisch]
 - Zeitachse: [Chronologische Meilensteine]
+- Außensicht: [Referenzklasse, Basisrate als Bandbreite, Unterschiede zum aktuellen Fall]
 ```
 
 ### Phase 2: Umgebungsaufbau (Agenten & Parameter)
@@ -107,12 +110,17 @@ RUNDE [N] — [Zeitpunkt]
 **Schritte**:
 1. Simulationsergebnisse konsolidieren
 2. Prognose in Szenarien destillieren:
-   - **Basisszenario** (wahrscheinlichster Verlauf, ~60% Konfidenz)
-   - **Optimistisches Szenario** (günstige Wendungen, ~20%)
-   - **Pessimistisches Szenario** (Eskalation/Worst Case, ~20%)
-3. Tipping Points & Entscheidungsknoten herausarbeiten
-4. Handlungsempfehlungen ableiten
-5. Unsicherheiten und Modellgrenzen benennen
+   - **Basisszenario** (wahrscheinlichster Verlauf)
+   - **Optimistisches Szenario** (günstige Wendungen)
+   - **Pessimistisches Szenario** (Eskalation/Worst Case)
+3. Wahrscheinlichkeiten herleiten, nicht setzen:
+   - Start ist die Basisrate aus Phase 1; jede Abweichung davon mit dem Simulationsbefund oder einem Fakt begründen
+   - Bandbreiten statt Punktwerte; keine feste Verteilung wie 60/20/20
+   - Kohärenz prüfen: Die drei Szenarien schließen sich aus und decken zusammen den Möglichkeitsraum ab, ihre Mittelwerte ergeben rund 100 %. Dasselbe Ereignis ist bis zu einem späteren Datum nie unwahrscheinlicher als bis zu einem früheren
+4. Tipping Points & Entscheidungsknoten herausarbeiten
+5. Frühindikatoren festlegen: pro Szenario beobachtbare Signale mit Datum oder Zeitfenster, an denen sich die Prognose überprüfen lässt
+6. Handlungsempfehlungen ableiten
+7. Unsicherheiten und Modellgrenzen benennen
 
 **Output-Format**:
 ```
@@ -125,18 +133,24 @@ PROGNOSE-BERICHT: [Titel]
    [Ausgangslage, Schlüsselakteure, initiale Dynamik]
 
 3. SIMULATIONSERGEBNISSE
-   3.1 Basisszenario: [Beschreibung, Wahrscheinlichkeit, Zeitverlauf]
-   3.2 Optimistisches Szenario: [Beschreibung, Auslöser]
-   3.3 Pessimistisches Szenario: [Beschreibung, Risikofaktoren]
+   Außensicht: [Referenzklasse, Basisrate]
+   3.1 Basisszenario: [Beschreibung, Wahrscheinlichkeit als Bandbreite, Zeitverlauf]
+   3.2 Optimistisches Szenario: [Beschreibung, Auslöser, Wahrscheinlichkeit als Bandbreite]
+   3.3 Pessimistisches Szenario: [Beschreibung, Risikofaktoren, Wahrscheinlichkeit als Bandbreite]
+   Begründung der Abweichung von der Basisrate: [welcher Befund, welcher Fakt]
 
-4. TIPPING POINTS
+4. TIPPING POINTS & FRÜHINDIKATOREN
    [Kritische Entscheidungsmomente mit Hebel-Wirkung]
+   [Signal → spricht für Szenario X → prüfen bis/am Datum]
 
 5. HANDLUNGSEMPFEHLUNGEN
    [Konkrete Maßnahmen pro Szenario]
 
 6. MODELLGRENZEN & UNSICHERHEITEN
    [Wo die Simulation an Grenzen stößt]
+   [Pflichtpunkt: Alle Agenten entstehen aus demselben Sprachmodell. Einigkeit
+    zwischen Agenten ist keine unabhängige Bestätigung, und simulierte Gruppen
+    geben reale Meinungsverteilungen nur verzerrt wieder]
 
 7. AGENTEN-INSIGHTS
    [Überraschende Erkenntnisse aus Agentenverhalten]
@@ -149,6 +163,7 @@ Nach Berichterstellung bietet der Skill dem Nutzer an:
 - **Variablen nachinjizieren**: "Was passiert, wenn jetzt [X] eintritt?"
 - **Zeitachse verschieben**: Simulation ab einem anderen Punkt fortsetzen
 - **Gegenprobe**: Annahmen hinterfragen, alternative Seeds testen
+- **Nachhalten**: Prognose mit Datum, Bandbreiten, Frühindikatoren und Auflösungskriterium festhalten, damit sie später gegen den tatsächlichen Verlauf geprüft werden kann
 
 ---
 
@@ -185,6 +200,8 @@ Nach Berichterstellung bietet der Skill dem Nutzer an:
 4. **Adversariales Denken**: Mindestens ein Agent vertritt systematisch Gegenposition
 5. **Gedächtniskonsistenz**: Agenten widersprechen sich nicht selbst über Runden hinweg
 6. **Keine Pseudo-Präzision**: Keine falschen Prozentzahlen ohne Begründung, Bandbreiten statt Punktschätzungen
+7. **Außensicht vor Innensicht**: Erst die Basisrate vergleichbarer Fälle, dann die Abweichung durch den konkreten Fall. Eine lebendige Simulation ersetzt keine Referenzklasse
+8. **Simulierte Stimmen sind keine Quellen**: Mehr Agenten, mehr Runden oder andere Personas erzeugen keine neuen Informationen. Belege kommen aus dem Seed-Material und aus Fakten, nicht aus der Zahl zustimmender Agenten
 
 ---
 
@@ -197,7 +214,7 @@ Wenn der Nutzer einen Simulations-Auftrag gibt:
 3. **Phase 1-4 sequenziell durchlaufen**, Output pro Phase zeigen
 4. **Phase 5 anbieten**: "Willst du mit einem Agenten sprechen oder eine Variable injizieren?"
 
-Bei kurzen/informellen Anfragen ("Was passiert wenn...") → komprimierter Durchlauf: Direkter Mini-Graph → 3-5 Agenten → 3 Runden → Kurzprognose mit Szenarien.
+Bei kurzen/informellen Anfragen ("Was passiert wenn...") → komprimierter Durchlauf: Direkter Mini-Graph mit Basisrate in einem Satz → 3-5 Agenten → 3 Runden → Kurzprognose mit Szenarien und Bandbreiten.
 
 Bei umfangreichen Anfragen → voller 5-Phasen-Workflow mit detailliertem Output pro Phase.
 
