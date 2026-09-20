@@ -165,7 +165,7 @@ Nach Berichterstellung bietet der Skill dem Nutzer an:
 - **Variablen nachinjizieren**: "Was passiert, wenn jetzt [X] eintritt?" Vorher prüfen, ob die Information wirklich neu ist: Wiederholt sie eine schon verarbeitete Meldung oder ist sie in der bisherigen Prognose bereits eingepreist, bleiben die Wahrscheinlichkeiten, wo sie sind. Die vorherige Fassung bleibt stehen, damit die Änderung nachvollziehbar wird
 - **Zeitachse verschieben**: Simulation ab einem anderen Punkt fortsetzen
 - **Gegenprobe**: Annahmen hinterfragen, alternative Seeds testen
-- **Nachhalten**: Prognose mit Datum, Bandbreiten, Frühindikatoren und Auflösungskriterium festhalten, damit sie später gegen den tatsächlichen Verlauf geprüft werden kann. Beim Abgleich Urteilsfehler von Zufall trennen: Ein eingetretenes Randszenario widerlegt die Prognose nicht — ein Möglichkeitsraum, der den tatsächlichen Verlauf gar nicht enthielt, schon
+- **Nachhalten**: Prognose mit Datum, Bandbreiten, Frühindikatoren und dem vorab festgelegten Auflösungskriterium (Schritt 3 der Workflow-Steuerung) festhalten, damit sie später gegen den tatsächlichen Verlauf geprüft werden kann. Beim Abgleich Urteilsfehler von Zufall trennen: Ein eingetretenes Randszenario widerlegt die Prognose nicht — ein Möglichkeitsraum, der den tatsächlichen Verlauf gar nicht enthielt, schon
 
 ---
 
