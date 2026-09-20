@@ -14,7 +14,7 @@ Aus Seed-Informationen (Nachrichten, Policy-Entwürfe, Finanzsignale, Romanfragm
 2. **Umgebungsaufbau** — Agenten-Personas mit Persönlichkeit, Gedächtnis, Verhaltensregeln und sozialer Position
 3. **Simulation** — Multi-Runden-Interaktion mit Variablen-Injektion und Emergenz-Erkennung
 4. **Berichterstellung** — Drei Szenarien (Basis/Optimistisch/Pessimistisch) mit hergeleiteten Wahrscheinlichkeits-Bandbreiten, Tipping Points, Frühindikatoren und Handlungsempfehlungen
-5. **Deep Interaction** — Dialog mit einzelnen Agenten, Variablen nachinjizieren, Zeitachse verschieben
+5. **Deep Interaction** — Dialog mit einzelnen Agenten, Variablen nachinjizieren, Zeitachse verschieben, Prognose mit Stichtag und Auflösungskriterium nachhalten
 
 ## Anwendungsszenarien
 
@@ -31,12 +31,12 @@ Die Datei `mirofish-skill/SKILL.md` in das Skills-Verzeichnis einer Claude Cowor
 
 - Emergenz vor Extrapolation
 - Transparente Unsicherheit
-- Falsifizierbare Szenarien
+- Falsifizierbare Szenarien (Ereignis, Stichtag und Auflösungskriterium stehen vorher fest)
 - Adversariales Denken
 - Gedächtniskonsistenz
 - Keine Pseudo-Präzision
 - Außensicht vor Innensicht (Basisrate vergleichbarer Fälle zuerst)
-- Simulierte Stimmen sind keine Quellen
+- Simulierte Stimmen sind keine Quellen (abweichende Einzelpositionen werden trotzdem berichtet)
 
 ## Attribution
 

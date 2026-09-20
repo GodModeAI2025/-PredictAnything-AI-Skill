@@ -108,7 +108,7 @@ RUNDE [N] — [Zeitpunkt]
 ### Phase 4: Berichterstellung (ReportAgent)
 
 **Schritte**:
-1. Simulationsergebnisse konsolidieren
+1. Simulationsergebnisse konsolidieren. Eine abweichende Einzelposition mit eigener kausaler Begründung wird nicht weggemittelt, sondern als eigene Lesart berichtet: Der Wert einer Stimme im Schwarm liegt darin, wo sie von den anderen abweicht, nicht darin, dass sie zustimmt. Die Größe der Mehrheit ist keine Wahrscheinlichkeit
 2. Prognose in Szenarien destillieren:
    - **Basisszenario** (wahrscheinlichster Verlauf)
    - **Optimistisches Szenario** (günstige Wendungen)
@@ -125,6 +125,7 @@ RUNDE [N] — [Zeitpunkt]
 **Output-Format**:
 ```
 PROGNOSE-BERICHT: [Titel]
+Prognosefrage: [Ereignis, Stichtag, was als eingetreten gilt, woran es ablesbar ist]
 
 1. EXECUTIVE SUMMARY
    [3-5 Sätze Kernaussage]
@@ -154,16 +155,17 @@ PROGNOSE-BERICHT: [Titel]
 
 7. AGENTEN-INSIGHTS
    [Überraschende Erkenntnisse aus Agentenverhalten]
+   [Abweichende Einzelpositionen mit eigener Begründung — nicht weggemittelt]
 ```
 
 ### Phase 5: Deep Interaction (Dialog mit der Simulationswelt)
 
 Nach Berichterstellung bietet der Skill dem Nutzer an:
 - **Mit einzelnen Agenten sprechen**: Perspektive eines Stakeholders einnehmen
-- **Variablen nachinjizieren**: "Was passiert, wenn jetzt [X] eintritt?"
+- **Variablen nachinjizieren**: "Was passiert, wenn jetzt [X] eintritt?" Vorher prüfen, ob die Information wirklich neu ist: Wiederholt sie eine schon verarbeitete Meldung oder ist sie in der bisherigen Prognose bereits eingepreist, bleiben die Wahrscheinlichkeiten, wo sie sind. Die vorherige Fassung bleibt stehen, damit die Änderung nachvollziehbar wird
 - **Zeitachse verschieben**: Simulation ab einem anderen Punkt fortsetzen
 - **Gegenprobe**: Annahmen hinterfragen, alternative Seeds testen
-- **Nachhalten**: Prognose mit Datum, Bandbreiten, Frühindikatoren und Auflösungskriterium festhalten, damit sie später gegen den tatsächlichen Verlauf geprüft werden kann
+- **Nachhalten**: Prognose mit Datum, Bandbreiten, Frühindikatoren und Auflösungskriterium festhalten, damit sie später gegen den tatsächlichen Verlauf geprüft werden kann. Beim Abgleich Urteilsfehler von Zufall trennen: Ein eingetretenes Randszenario widerlegt die Prognose nicht — ein Möglichkeitsraum, der den tatsächlichen Verlauf gar nicht enthielt, schon
 
 ---
 
@@ -196,7 +198,7 @@ Nach Berichterstellung bietet der Skill dem Nutzer an:
 
 1. **Emergenz vor Extrapolation**: Ergebnisse entstehen aus Agenteninteraktionen, nicht aus linearer Fortschreibung
 2. **Transparente Unsicherheit**: Jede Prognose benennt Konfidenz, Annahmen und blinde Flecken
-3. **Falsifizierbare Szenarien**: Jedes Szenario enthält konkrete Indikatoren, an denen seine Eintrittwahrscheinlichkeit messbar wird
+3. **Falsifizierbare Szenarien**: Jedes Szenario enthält konkrete Indikatoren, an denen seine Eintrittwahrscheinlichkeit messbar wird. Ereignis, Stichtag und Auflösungskriterium stehen vor der Simulation fest, nicht nach dem Bericht
 4. **Adversariales Denken**: Mindestens ein Agent vertritt systematisch Gegenposition
 5. **Gedächtniskonsistenz**: Agenten widersprechen sich nicht selbst über Runden hinweg
 6. **Keine Pseudo-Präzision**: Keine falschen Prozentzahlen ohne Begründung, Bandbreiten statt Punktschätzungen
@@ -211,10 +213,11 @@ Wenn der Nutzer einen Simulations-Auftrag gibt:
 
 1. **Seed prüfen**: Ist genug Material vorhanden? Falls nicht → gezielt nachfragen
 2. **Scope klären**: Makro (Gesellschaft/Markt) oder Mikro (Team/Individuum)? Zeitrahmen?
-3. **Phase 1-4 sequenziell durchlaufen**, Output pro Phase zeigen
-4. **Phase 5 anbieten**: "Willst du mit einem Agenten sprechen oder eine Variable injizieren?"
+3. **Prognosefrage scharf stellen**: Welches Ereignis, bis zu welchem Stichtag, was genau gilt als eingetreten, und woran wird es später ablesbar sein? Das gehört vor die Simulation — ein Auflösungskriterium, das erst nach dem Bericht entsteht, passt sich dem Ergebnis an. Reicht das Material für keine belastbare Schätzung, die Lücke benennen oder bedingte Szenarien liefern, statt "weiß ich nicht" stillschweigend als 50 % zu verbuchen
+4. **Phase 1-4 sequenziell durchlaufen**, Output pro Phase zeigen
+5. **Phase 5 anbieten**: "Willst du mit einem Agenten sprechen oder eine Variable injizieren?"
 
-Bei kurzen/informellen Anfragen ("Was passiert wenn...") → komprimierter Durchlauf: Direkter Mini-Graph mit Basisrate in einem Satz → 3-5 Agenten → 3 Runden → Kurzprognose mit Szenarien und Bandbreiten.
+Bei kurzen/informellen Anfragen ("Was passiert wenn...") → komprimierter Durchlauf: Ereignis und Stichtag in einem Satz festhalten → direkter Mini-Graph mit Basisrate in einem Satz → 3-5 Agenten → 3 Runden → Kurzprognose mit Szenarien und Bandbreiten.
 
 Bei umfangreichen Anfragen → voller 5-Phasen-Workflow mit detailliertem Output pro Phase.
 
